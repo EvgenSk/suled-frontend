@@ -69,6 +69,17 @@ npm run dev
 
 The app will be available at `http://localhost:3000`
 
+### Running Tests
+
+```powershell
+npm test              # Run tests in watch mode
+npm run test:run      # Run tests once (CI mode)
+npm run test:ui       # Open test UI in browser
+npm run test:coverage # Generate coverage report
+```
+
+See [TESTING.md](TESTING.md) for comprehensive testing documentation.
+
 ### Type Checking
 
 ```powershell
