@@ -181,8 +181,9 @@ onMounted(() => {
 
 .players {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
   color: #4a5568;
   font-size: 0.9rem;
 }
@@ -190,6 +191,7 @@ onMounted(() => {
 .players .divider {
   color: #a0aec0;
   font-weight: 600;
+  margin: 0 0.25rem;
 }
 
 .games-section {
