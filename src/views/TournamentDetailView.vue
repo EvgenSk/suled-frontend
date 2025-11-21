@@ -40,7 +40,7 @@
         </div>
       </div>
 
-      <div v-if="selectedPairId" class="games-section">
+      <div v-if="selectedPairId" ref="gamesSection" class="games-section">
         <GamesList
           :pair-id="selectedPairId"
           :pair-name="selectedPair?.displayName"
@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '@/api/client'
 import GamesList from '@/components/GamesList.vue'
@@ -77,6 +77,15 @@ const pairs = ref<Pair[]>([])
 const selectedPairId = ref<string | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+const gamesSection = ref<HTMLElement | null>(null)
+
+// Auto-scroll to games section when a pair is selected
+watch(selectedPairId, async (newValue) => {
+  if (newValue && gamesSection.value) {
+    await nextTick()
+    gamesSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+})
 
 const selectedPair = computed(() =>
   pairs.value.find(p => p.id === selectedPairId.value)
@@ -263,6 +272,13 @@ onMounted(() => {
 
 .pair-card.active .game-count {
   color: #2c5282;
+}
+
+.games-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 3px solid #e2e8f0;
+  scroll-margin-top: 2rem;
 }
 
 .games-section {
