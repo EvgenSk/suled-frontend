@@ -43,10 +43,10 @@ class ApiClient {
 
   // Pair endpoints
   async getPairs(tournamentId: string): Promise<Pair[]> {
-    const response = await this.client.get<Pair[]>('/pairs', {
+    const response = await this.client.get<{ pairs: Pair[], totalPairs: number }>('/pairs', {
       params: { tournamentId }
     })
-    return response.data
+    return response.data.pairs
   }
 
   // Game endpoints
