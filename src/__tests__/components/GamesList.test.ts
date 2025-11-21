@@ -1,15 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import GamesList from '@/components/GamesList.vue'
-import { api } from '@/api/client'
 import type { Game } from '@/types'
-
-// Mock the API client
-vi.mock('@/api/client', () => ({
-  api: {
-    getGamesForPair: vi.fn()
-  }
-}))
 
 describe('GamesList.vue', () => {
   const mockGames: Game[] = [
@@ -35,17 +27,12 @@ describe('GamesList.vue', () => {
     }
   ]
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-    // Mock successful API call by default
-    vi.mocked(api.getGamesForPair).mockResolvedValue(mockGames)
-  })
-
   it('renders games list with pair name', () => {
     const wrapper = mount(GamesList, {
       props: {
         pairId: 'pair-123',
-        pairName: 'Team Alpha'
+        pairName: 'Team Alpha',
+        games: mockGames
       }
     })
     
@@ -55,49 +42,32 @@ describe('GamesList.vue', () => {
   it('renders games list without pair name', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
     
     expect(wrapper.find('h2').exists()).toBe(true)
   })
 
-  it('shows refresh button', () => {
+  it('renders empty state when no games', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: []
       }
     })
-    
-    expect(wrapper.find('.btn-refresh').exists()).toBe(true)
-  })
-
-  it('renders empty state when no games', async () => {
-    const wrapper = mount(GamesList, {
-      props: {
-        pairId: 'pair-123'
-      }
-    })
-    
-    const component = wrapper.vm as any
-    component.games = []
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     expect(wrapper.find('.empty-state').exists()).toBe(true)
   })
 
-  it('renders games table with headers', async () => {
+  it('renders games table with headers', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = mockGames
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     const table = wrapper.find('table')
     expect(table.exists()).toBe(true)
@@ -111,33 +81,25 @@ describe('GamesList.vue', () => {
     expect(headers[4].text()).toBe('Status')
   })
 
-  it('renders game rows', async () => {
+  it('renders game rows', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = mockGames
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     const rows = wrapper.findAll('tbody tr')
     expect(rows).toHaveLength(2)
   })
 
-  it('displays game information correctly', async () => {
+  it('displays game information correctly', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = mockGames
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     const firstRow = wrapper.find('tbody tr')
     expect(firstRow.text()).toContain('1') // round
@@ -147,34 +109,26 @@ describe('GamesList.vue', () => {
     expect(firstRow.text()).toContain('Team B')
   })
 
-  it('applies our-game class to relevant games', async () => {
+  it('applies our-game class to relevant games', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = mockGames
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     const rows = wrapper.findAll('tbody tr')
     expect(rows[0].classes()).toContain('our-game')
     expect(rows[1].classes()).not.toContain('our-game')
   })
 
-  it('displays status badges', async () => {
+  it('displays status badges', () => {
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: mockGames
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = mockGames
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     const badges = wrapper.findAll('.status-badge')
     expect(badges).toHaveLength(2)
@@ -182,7 +136,7 @@ describe('GamesList.vue', () => {
     expect(badges[1].text()).toBe('Completed')
   })
 
-  it('shows TBD for games without scheduled time', async () => {
+  it('shows TBD for games without scheduled time', () => {
     const gamesWithoutTime: Game[] = [{
       ...mockGames[0],
       scheduledTime: null
@@ -190,14 +144,10 @@ describe('GamesList.vue', () => {
 
     const wrapper = mount(GamesList, {
       props: {
-        pairId: 'pair-123'
+        pairId: 'pair-123',
+        games: gamesWithoutTime
       }
     })
-    
-    const component = wrapper.vm as any
-    component.games = gamesWithoutTime
-    component.isLoading = false
-    await wrapper.vm.$nextTick()
 
     expect(wrapper.text()).toContain('TBD')
   })

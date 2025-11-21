@@ -1,21 +1,10 @@
 <template>
   <div class="games-list">
     <div class="header">
-      <h2>Games for {{ pairName || 'Loading...' }}</h2>
-      <button @click="refreshGames" :disabled="isLoading" class="btn-refresh">
-        {{ isLoading ? '⟳' : '↻' }} Refresh
-      </button>
+      <h2>Games for {{ pairName }}</h2>
     </div>
 
-    <div v-if="isLoading && games.length === 0" class="loading">
-      Loading games...
-    </div>
-
-    <div v-else-if="error" class="error-message">
-      {{ error }}
-    </div>
-
-    <div v-else-if="games.length === 0" class="empty-state">
+    <div v-if="games.length === 0" class="empty-state">
       No games found for this pair
     </div>
 
@@ -61,37 +50,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { api } from '@/api/client'
 import type { Game } from '@/types'
 
 interface Props {
   pairId: string
   pairName?: string
+  games: Game[]
 }
 
-const props = defineProps<Props>()
-
-const games = ref<Game[]>([])
-const isLoading = ref(false)
-const error = ref<string | null>(null)
-
-const loadGames = async () => {
-  isLoading.value = true
-  error.value = null
-
-  try {
-    games.value = await api.getGamesForPair(props.pairId)
-  } catch (err) {
-    error.value = `Failed to load games: ${err instanceof Error ? err.message : 'Unknown error'}`
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const refreshGames = () => {
-  loadGames()
-}
+defineProps<Props>()
 
 const formatTime = (dateString: string) => {
   return new Date(dateString).toLocaleTimeString('en-US', {
@@ -99,10 +66,6 @@ const formatTime = (dateString: string) => {
     minute: '2-digit'
   })
 }
-
-onMounted(() => {
-  loadGames()
-})
 </script>
 
 <style scoped>

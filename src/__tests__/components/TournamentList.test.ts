@@ -28,7 +28,11 @@ describe('TournamentList.vue', () => {
       division: 'Mixed',
       description: 'Annual summer tournament',
       status: 'Active',
-      gameCount: 15,
+      blobFileName: 'summer.xlsx',
+      pairs: [
+        { id: 'p1', displayName: 'Team A', pairInfo: {} as any, games: new Array(8), gameCount: 8 },
+        { id: 'p2', displayName: 'Team B', pairInfo: {} as any, games: new Array(7), gameCount: 7 }
+      ],
       createdDate: '2025-05-01T00:00:00'
     },
     {
@@ -40,7 +44,11 @@ describe('TournamentList.vue', () => {
       division: 'Women',
       description: 'Winter season',
       status: 'Upcoming',
-      gameCount: 8,
+      blobFileName: 'winter.xlsx',
+      pairs: [
+        { id: 'p3', displayName: 'Team C', pairInfo: {} as any, games: new Array(4), gameCount: 4 },
+        { id: 'p4', displayName: 'Team D', pairInfo: {} as any, games: new Array(4), gameCount: 4 }
+      ],
       createdDate: '2025-04-15T00:00:00'
     }
   ]

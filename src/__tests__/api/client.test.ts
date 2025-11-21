@@ -30,8 +30,9 @@ describe('API Client', () => {
           division: 'Mixed',
           description: 'Summer beach volleyball',
           status: 'Active',
-          gameCount: 15,
-          createdDate: '2025-05-01'
+          createdDate: '2025-05-01',
+          blobFileName: 'tournament.xlsx',
+          pairs: []
         }
       ]
 
@@ -57,15 +58,16 @@ describe('API Client', () => {
           id: 'pair1',
           displayName: 'Team A',
           player1: 'John Doe',
-          player2: 'Jane Smith'
+          player2: 'Jane Smith',
+          gameCount: 5
         }
       ]
 
       vi.mocked(api.getPairs).mockResolvedValue(mockPairs)
 
-      const result = await api.getPairs('tournament-123')
+      const result = await api.getPairs()
       expect(result).toEqual(mockPairs)
-      expect(api.getPairs).toHaveBeenCalledWith('tournament-123')
+      expect(api.getPairs).toHaveBeenCalledOnce()
     })
   })
 

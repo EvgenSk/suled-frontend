@@ -3,6 +3,37 @@
  * Generated from SuledFunctions.Contracts
  */
 
+export interface Player {
+  name: string
+  surname: string
+  fullName: string
+}
+
+export interface PairInfo {
+  id: string
+  displayName: string
+  player1: Player
+  player2: Player
+}
+
+export interface PairGame {
+  id: string
+  tournamentId: string
+  round: number
+  courtNumber: number
+  opponentPair: PairInfo
+  scheduledTime: string | null
+  status: string
+}
+
+export interface TournamentPair {
+  pairInfo: PairInfo
+  games: PairGame[]
+  id: string
+  displayName: string
+  gameCount: number
+}
+
 export interface Tournament {
   id: string
   name: string
@@ -12,8 +43,9 @@ export interface Tournament {
   division: string
   description: string
   status: string
-  gameCount: number
   createdDate: string
+  blobFileName: string
+  pairs: TournamentPair[]
 }
 
 export interface Pair {

@@ -52,6 +52,12 @@ class ApiClient {
     const response = await this.client.get<{ pairId: string, games: Game[], totalGames: number }>(`/games/pair/${pairId}`)
     return response.data.games
   }
+
+  // Get tournament by ID
+  async getTournament(id: string): Promise<Tournament> {
+    const response = await this.client.get<Tournament>(`/tournament/${id}`)
+    return response.data
+  }
 }
 
 // Export singleton instance

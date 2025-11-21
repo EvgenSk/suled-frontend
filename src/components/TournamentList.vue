@@ -47,7 +47,7 @@
           
           <div class="info-row">
             <span class="label">🎮</span>
-            <span>{{ tournament.gameCount }} games</span>
+            <span>{{ tournament.pairs?.reduce((sum, p) => sum + p.gameCount, 0) || 0 }} games</span>
           </div>
         </div>
 

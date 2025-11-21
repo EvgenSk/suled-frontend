@@ -44,6 +44,7 @@
         <GamesList
           :pair-id="selectedPairId"
           :pair-name="selectedPair?.displayName"
+          :games="gamesForSelectedPair"
         />
       </div>
     </div>
@@ -52,10 +53,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { api } from '@/api/client'
 import GamesList from '@/components/GamesList.vue'
-import type { Pair } from '@/types'
+import type { Pair, Tournament } from '@/types'
 
+const route = useRoute()
+const tournamentId = route.params.id as string
+
+const tournament = ref<Tournament | null>(null)
 const pairs = ref<Pair[]>([])
 const selectedPairId = ref<string | null>(null)
 const isLoading = ref(false)
@@ -65,25 +71,67 @@ const selectedPair = computed(() =>
   pairs.value.find(p => p.id === selectedPairId.value)
 )
 
-const loadPairs = async () => {
+// Get games for the selected pair (already in pair-centered structure!)
+const gamesForSelectedPair = computed(() => {
+  if (!tournament.value || !selectedPairId.value) {
+    return []
+  }
+
+  const selectedPairData = tournament.value.pairs.find(p => p.id === selectedPairId.value)
+  if (!selectedPairData) {
+    return []
+  }
+
+  // Convert PairGame to Game format for GamesList component
+  return selectedPairData.games.map(game => ({
+    id: game.id,
+    round: game.round,
+    courtNumber: game.courtNumber,
+    status: game.status,
+    scheduledTime: game.scheduledTime,
+    pair1: selectedPairData.displayName,
+    pair2: game.opponentPair.displayName,
+    isOurGame: true // Always true since we're viewing "our" pair's games
+  }))
+})
+
+// Extract pairs from tournament (already in pair-centered structure!)
+const extractPairsFromTournament = (t: Tournament): Pair[] => {
+  if (!t.pairs || t.pairs.length === 0) {
+    return []
+  }
+
+  // Tournament already has pairs with game counts!
+  return t.pairs.map(p => ({
+    id: p.id,
+    displayName: p.displayName,
+    player1: p.pairInfo.player1.fullName,
+    player2: p.pairInfo.player2.fullName,
+    gameCount: p.gameCount
+  }))
+}
+
+const loadTournament = async () => {
   isLoading.value = true
   error.value = null
 
   try {
-    pairs.value = await api.getPairs()
+    tournament.value = await api.getTournament(tournamentId)
+    pairs.value = extractPairsFromTournament(tournament.value)
+    
     // Auto-select first pair if available
     if (pairs.value.length > 0) {
       selectedPairId.value = pairs.value[0].id
     }
   } catch (err) {
-    error.value = `Failed to load pairs: ${err instanceof Error ? err.message : 'Unknown error'}`
+    error.value = `Failed to load tournament: ${err instanceof Error ? err.message : 'Unknown error'}`
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(() => {
-  loadPairs()
+  loadTournament()
 })
 </script>
 
