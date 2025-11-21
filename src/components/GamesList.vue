@@ -21,7 +21,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="game in games"
+            v-for="game in sortedGames"
             :key="game.id"
             :class="{ 'our-game': game.isOurGame }"
           >
@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Game } from '@/types'
 
 interface Props {
@@ -58,7 +59,11 @@ interface Props {
   games: Game[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const sortedGames = computed(() => {
+  return [...props.games].sort((a, b) => a.round - b.round)
+})
 
 const formatTime = (dateString: string) => {
   return new Date(dateString).toLocaleTimeString('en-US', {
