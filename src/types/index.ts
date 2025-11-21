@@ -21,6 +21,7 @@ export interface Pair {
   displayName: string
   player1: string
   player2: string
+  gameCount: number
 }
 
 export interface Game {

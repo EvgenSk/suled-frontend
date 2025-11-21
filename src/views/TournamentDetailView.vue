@@ -33,6 +33,9 @@
               <span class="divider">&</span>
               <span>{{ pair.player2 }}</span>
             </div>
+            <div class="game-count">
+              🎮 {{ pair.gameCount }} {{ pair.gameCount === 1 ? 'game' : 'games' }}
+            </div>
           </button>
         </div>
       </div>
@@ -49,13 +52,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { api } from '@/api/client'
 import GamesList from '@/components/GamesList.vue'
 import type { Pair } from '@/types'
-
-const route = useRoute()
-const tournamentId = route.params.id as string
 
 const pairs = ref<Pair[]>([])
 const selectedPairId = ref<string | null>(null)
@@ -71,7 +70,7 @@ const loadPairs = async () => {
   error.value = null
 
   try {
-    pairs.value = await api.getPairs(tournamentId)
+    pairs.value = await api.getPairs()
     // Auto-select first pair if available
     if (pairs.value.length > 0) {
       selectedPairId.value = pairs.value[0].id
@@ -192,6 +191,19 @@ onMounted(() => {
   color: #a0aec0;
   font-weight: 600;
   margin: 0 0.25rem;
+}
+
+.game-count {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  color: #718096;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.pair-card.active .game-count {
+  color: #2c5282;
 }
 
 .games-section {
