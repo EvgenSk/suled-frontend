@@ -61,6 +61,17 @@ import type { Pair, Tournament } from '@/types'
 const route = useRoute()
 const tournamentId = route.params.id as string
 
+// Helper to convert GameStatus enum to string
+const getStatusString = (status: number): string => {
+  const statusMap: Record<number, string> = {
+    0: 'Scheduled',
+    1: 'InProgress',
+    2: 'Completed',
+    3: 'Cancelled'
+  }
+  return statusMap[status] || 'Scheduled'
+}
+
 const tournament = ref<Tournament | null>(null)
 const pairs = ref<Pair[]>([])
 const selectedPairId = ref<string | null>(null)
@@ -87,7 +98,7 @@ const gamesForSelectedPair = computed(() => {
     id: game.id,
     round: game.round,
     courtNumber: game.courtNumber,
-    status: game.status,
+    status: getStatusString(game.status),
     scheduledTime: game.scheduledTime,
     pair1: selectedPairData.displayName,
     pair2: game.opponentPair.displayName,

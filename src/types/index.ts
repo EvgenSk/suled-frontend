@@ -16,6 +16,13 @@ export interface PairInfo {
   player2: Player
 }
 
+export enum GameStatus {
+  Scheduled = 0,
+  InProgress = 1,
+  Completed = 2,
+  Cancelled = 3
+}
+
 export interface PairGame {
   id: string
   tournamentId: string
@@ -23,7 +30,7 @@ export interface PairGame {
   courtNumber: number
   opponentPair: PairInfo
   scheduledTime: string | null
-  status: string
+  status: GameStatus
 }
 
 export interface TournamentPair {
