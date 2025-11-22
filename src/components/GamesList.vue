@@ -32,8 +32,6 @@
             </td>
             <td class="opponents">
               <div class="pair-names">
-                <span>{{ game.pair1 }}</span>
-                <span class="vs">vs</span>
                 <span>{{ game.pair2 }}</span>
               </div>
             </td>
