@@ -41,6 +41,13 @@ export interface TournamentPair {
   gameCount: number
 }
 
+export interface TournamentRound {
+  roundNumber: number
+  startTime: string
+  endTime: string
+  gameCount: number
+}
+
 export interface Tournament {
   id: string
   name: string
@@ -53,6 +60,7 @@ export interface Tournament {
   createdDate: string
   blobFileName: string
   pairs: TournamentPair[]
+  rounds: TournamentRound[]
 }
 
 export interface Pair {

@@ -28,7 +28,7 @@
             <td class="round">{{ game.round }}</td>
             <td class="court">{{ game.courtNumber }}</td>
             <td class="time">
-              {{ game.scheduledTime ? formatTime(game.scheduledTime) : 'TBD' }}
+              {{ getRoundTime(game.round) }}
             </td>
             <td class="opponents">
               <div class="pair-names">
@@ -51,25 +51,37 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Game } from '@/types'
+import type { Game, TournamentRound } from '@/types'
+import { useFormatting } from '@/composables/useFormatting'
 
 interface Props {
   pairId: string
   pairName?: string
   games: Game[]
+  rounds?: TournamentRound[]
 }
 
 const props = defineProps<Props>()
+
+const { formatDateTime } = useFormatting()
 
 const sortedGames = computed(() => {
   return [...props.games].sort((a, b) => a.round - b.round)
 })
 
-const formatTime = (dateString: string) => {
-  return new Date(dateString).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit'
-  })
+const getRoundTime = (roundNumber: number): string => {
+  if (!props.rounds || props.rounds.length === 0) {
+    return 'TBD'
+  }
+  
+  const round = props.rounds.find(r => r.roundNumber === roundNumber)
+  if (!round) {
+    return 'TBD'
+  }
+  
+  const startTime = formatDateTime(round.startTime)
+  const endTime = formatDateTime(round.endTime)
+  return `${startTime} - ${endTime}`
 }
 </script>
 

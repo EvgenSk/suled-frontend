@@ -42,6 +42,30 @@ export function useFormatting() {
   }
 
   /**
+   * Format date and time together
+   */
+  const formatDateTime = (dateTimeString: string | Date) => {
+    if (!dateTimeString) return ''
+    
+    // Handle TimeOnly format (HH:mm:ss)
+    if (typeof dateTimeString === 'string' && /^\d{2}:\d{2}:\d{2}/.test(dateTimeString)) {
+      const [hours, minutes] = dateTimeString.split(':')
+      const hour = parseInt(hours)
+      const min = parseInt(minutes)
+      const period = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${displayHour}:${min.toString().padStart(2, '0')} ${period}`
+    }
+    
+    return new Date(dateTimeString).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  /**
    * Get status badge class
    */
   const getStatusClass = (status: string) => {
@@ -77,6 +101,7 @@ export function useFormatting() {
     formatDate,
     formatDateLong,
     formatTime,
+    formatDateTime,
     getStatusClass,
     formatStatus
   }

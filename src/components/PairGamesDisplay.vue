@@ -4,6 +4,7 @@
       :pair-id="pairId"
       :pair-name="pairName"
       :games="games"
+      :rounds="rounds"
     />
   </div>
 </template>
@@ -11,12 +12,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import GamesList from '@/components/GamesList.vue'
-import type { Game } from '@/types'
+import type { Game, TournamentRound } from '@/types'
 
 defineProps<{
   pairId: string | null
   pairName?: string
   games: Game[]
+  rounds?: TournamentRound[]
 }>()
 
 const gamesContainer = ref<HTMLElement | null>(null)

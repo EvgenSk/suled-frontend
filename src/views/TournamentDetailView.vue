@@ -13,6 +13,8 @@
     </div>
 
     <div v-else class="content">
+      <RoundsDisplay :rounds="tournament?.rounds" />
+      
       <PairSelector
         :pairs="pairs"
         :selected-pair-id="selectedPairId"
@@ -25,6 +27,7 @@
         :pair-id="selectedPairId"
         :pair-name="selectedPair?.displayName"
         :games="gamesForSelectedPair"
+        :rounds="tournament?.rounds"
       />
     </div>
   </div>
@@ -37,6 +40,7 @@ import { useTournament } from '@/composables/useTournaments'
 import { usePairs } from '@/composables/usePairs'
 import PairSelector from '@/components/PairSelector.vue'
 import PairGamesDisplay from '@/components/PairGamesDisplay.vue'
+import RoundsDisplay from '@/components/RoundsDisplay.vue'
 
 const route = useRoute()
 const tournamentId = route.params.id as string

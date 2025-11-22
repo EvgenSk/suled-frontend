@@ -49,6 +49,11 @@
             <span class="label">🎮</span>
             <span>{{ tournament.pairs?.reduce((sum, p) => sum + p.gameCount, 0) || 0 }} games</span>
           </div>
+          
+          <div class="info-row" v-if="tournament.rounds && tournament.rounds.length > 0">
+            <span class="label">🔄</span>
+            <span>{{ tournament.rounds.length }} rounds</span>
+          </div>
         </div>
 
         <div class="tournament-footer">
