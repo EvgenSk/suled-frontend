@@ -62,43 +62,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from '@/api/client'
+import { useTournaments } from '@/composables/useTournaments'
+import { useFormatting } from '@/composables/useFormatting'
 import type { Tournament } from '@/types'
 
 const router = useRouter()
-const tournaments = ref<Tournament[]>([])
-const isLoading = ref(false)
-const error = ref<string | null>(null)
-
-const loadTournaments = async () => {
-  isLoading.value = true
-  error.value = null
-
-  try {
-    tournaments.value = await api.getTournaments()
-  } catch (err) {
-    error.value = `Failed to load tournaments: ${err instanceof Error ? err.message : 'Unknown error'}`
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const refreshTournaments = () => {
-  loadTournaments()
-}
+const { tournaments, isLoading, error, loadTournaments, refreshTournaments } = useTournaments()
+const { formatDate } = useFormatting()
 
 const selectTournament = (tournament: Tournament) => {
   router.push(`/tournament/${tournament.id}`)
-}
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
 }
 
 onMounted(() => {

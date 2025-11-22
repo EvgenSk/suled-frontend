@@ -13,40 +13,19 @@
     </div>
 
     <div v-else class="content">
-      <div class="pairs-section">
-        <h2>Select a Pair</h2>
-        
-        <div v-if="pairs.length === 0" class="empty-state">
-          No pairs found for this tournament
-        </div>
+      <PairSelector
+        :pairs="pairs"
+        :selected-pair-id="selectedPairId"
+        @select="handlePairSelect"
+      />
 
-        <div v-else class="pairs-grid">
-          <button
-            v-for="pair in pairs"
-            :key="pair.id"
-            @click="selectedPairId = pair.id"
-            :class="['pair-card', { active: selectedPairId === pair.id }]"
-          >
-            <div class="pair-name">{{ pair.displayName }}</div>
-            <div class="players">
-              <span>{{ pair.player1 }}</span>
-              <span class="divider">&</span>
-              <span>{{ pair.player2 }}</span>
-            </div>
-            <div class="game-count">
-              🎮 {{ pair.gameCount }} {{ pair.gameCount === 1 ? 'game' : 'games' }}
-            </div>
-          </button>
-        </div>
-      </div>
-
-      <div v-if="selectedPairId" ref="gamesSection" class="games-section">
-        <GamesList
-          :pair-id="selectedPairId"
-          :pair-name="selectedPair?.displayName"
-          :games="gamesForSelectedPair"
-        />
-      </div>
+      <PairGamesDisplay
+        v-if="selectedPairId"
+        ref="gamesDisplayRef"
+        :pair-id="selectedPairId"
+        :pair-name="selectedPair?.displayName"
+        :games="gamesForSelectedPair"
+      />
     </div>
   </div>
 </template>
@@ -54,104 +33,51 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { api } from '@/api/client'
-import GamesList from '@/components/GamesList.vue'
-import type { Pair, Tournament } from '@/types'
+import { useTournament } from '@/composables/useTournaments'
+import { usePairs } from '@/composables/usePairs'
+import PairSelector from '@/components/PairSelector.vue'
+import PairGamesDisplay from '@/components/PairGamesDisplay.vue'
 
 const route = useRoute()
 const tournamentId = route.params.id as string
 
-// Helper to convert GameStatus enum to string
-const getStatusString = (status: number): string => {
-  const statusMap: Record<number, string> = {
-    0: 'Scheduled',
-    1: 'InProgress',
-    2: 'Completed',
-    3: 'Cancelled'
-  }
-  return statusMap[status] || 'Scheduled'
-}
+const { tournament, isLoading, error, loadTournament } = useTournament(tournamentId)
+const { pairs, getGamesForPair, findPairById } = usePairs(tournament)
 
-const tournament = ref<Tournament | null>(null)
-const pairs = ref<Pair[]>([])
 const selectedPairId = ref<string | null>(null)
-const isLoading = ref(false)
-const error = ref<string | null>(null)
-const gamesSection = ref<HTMLElement | null>(null)
+const gamesDisplayRef = ref<InstanceType<typeof PairGamesDisplay> | null>(null)
+
+const handlePairSelect = (pairId: string) => {
+  selectedPairId.value = pairId
+}
 
 // Auto-scroll to games section when a pair is selected
 watch(selectedPairId, async (newValue) => {
-  if (newValue && gamesSection.value) {
+  if (newValue && gamesDisplayRef.value?.gamesContainer) {
     await nextTick()
-    gamesSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    gamesDisplayRef.value.gamesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 })
 
 const selectedPair = computed(() =>
-  pairs.value.find(p => p.id === selectedPairId.value)
+  selectedPairId.value ? findPairById(selectedPairId.value) : null
 )
 
-// Get games for the selected pair (already in pair-centered structure!)
+// Get games for the selected pair
 const gamesForSelectedPair = computed(() => {
-  if (!tournament.value || !selectedPairId.value) {
+  if (!selectedPairId.value) {
     return []
   }
-
-  const selectedPairData = tournament.value.pairs.find(p => p.id === selectedPairId.value)
-  if (!selectedPairData) {
-    return []
-  }
-
-  // Convert PairGame to Game format for GamesList component
-  return selectedPairData.games.map(game => ({
-    id: game.id,
-    round: game.round,
-    courtNumber: game.courtNumber,
-    status: getStatusString(game.status),
-    scheduledTime: game.scheduledTime,
-    pair1: selectedPairData.displayName,
-    pair2: game.opponentPair.displayName,
-    isOurGame: true // Always true since we're viewing "our" pair's games
-  }))
+  return getGamesForPair(selectedPairId.value)
 })
 
-// Extract pairs from tournament (already in pair-centered structure!)
-const extractPairsFromTournament = (t: Tournament): Pair[] => {
-  if (!t.pairs || t.pairs.length === 0) {
-    return []
+onMounted(async () => {
+  await loadTournament()
+  
+  // Auto-select first pair if available
+  if (pairs.value.length > 0) {
+    selectedPairId.value = pairs.value[0].id
   }
-
-  // Tournament already has pairs with game counts!
-  return t.pairs.map(p => ({
-    id: p.id,
-    displayName: p.displayName,
-    player1: p.pairInfo.player1.fullName,
-    player2: p.pairInfo.player2.fullName,
-    gameCount: p.gameCount
-  }))
-}
-
-const loadTournament = async () => {
-  isLoading.value = true
-  error.value = null
-
-  try {
-    tournament.value = await api.getTournament(tournamentId)
-    pairs.value = extractPairsFromTournament(tournament.value)
-    
-    // Auto-select first pair if available
-    if (pairs.value.length > 0) {
-      selectedPairId.value = pairs.value[0].id
-    }
-  } catch (err) {
-    error.value = `Failed to load tournament: ${err instanceof Error ? err.message : 'Unknown error'}`
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(() => {
-  loadTournament()
 })
 </script>
 
@@ -177,8 +103,7 @@ onMounted(() => {
   text-decoration: underline;
 }
 
-.loading,
-.empty-state {
+.loading {
   text-align: center;
   padding: 3rem;
   color: #718096;
@@ -197,94 +122,5 @@ onMounted(() => {
 .content {
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.pairs-section {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.pairs-section h2 {
-  margin: 0 0 1.5rem 0;
-  color: #2c3e50;
-}
-
-.pairs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.pair-card {
-  background: #f7fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-}
-
-.pair-card:hover {
-  border-color: #4299e1;
-  transform: translateY(-2px);
-}
-
-.pair-card.active {
-  background: #ebf8ff;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-}
-
-.pair-name {
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-}
-
-.players {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  color: #4a5568;
-  font-size: 0.9rem;
-}
-
-.players .divider {
-  color: #a0aec0;
-  font-weight: 600;
-  margin: 0 0.25rem;
-}
-
-.game-count {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e2e8f0;
-  color: #718096;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.pair-card.active .game-count {
-  color: #2c5282;
-}
-
-.games-section {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 3px solid #e2e8f0;
-  scroll-margin-top: 2rem;
-}
-
-.games-section {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 </style>

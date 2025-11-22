@@ -1,5 +1,11 @@
 # GitHub Copilot Instructions for Suled Frontend
 
+## 🚨 CRITICAL WORKFLOW RULE
+**ALWAYS run tests IMMEDIATELY after making code changes, especially refactoring.**
+- Command: `npm run test:run`
+- Do NOT report work as complete until tests pass
+- This is a mandatory step, not optional
+
 ## Testing Guidelines
 
 ### When Business Logic Changes
@@ -9,11 +15,13 @@
 - Add new test cases for new component behavior or props
 
 ### After Refactoring
-- **Always run tests** after completing any refactoring work
-- Run tests: `npm run test:run`
-- Run type checking: `npm run type-check`
+- **CRITICAL: IMMEDIATELY run tests after ANY refactoring** - this is non-negotiable
+- **REQUIRED STEP**: Run tests: `npm run test:run`
+- **REQUIRED STEP**: Run type checking: `npm run type-check`
+- **DO NOT** present work as complete until ALL tests pass
 - Fix any failing tests before considering the refactoring complete
 - Ensure all 28+ tests pass before committing
+- **WORKFLOW**: Code change → Run tests → Fix failures → Verify passing → THEN report complete
 
 ### Test Maintenance
 - Keep test mocks synchronized with backend API responses
