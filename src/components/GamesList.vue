@@ -31,11 +31,7 @@
               {{ getRoundTime(game.round) }}
             </td>
             <td class="opponents">
-              <div class="pair-names">
-                <span>{{ game.pair1 }}</span>
-                <span class="vs">vs</span>
-                <span>{{ game.pair2 }}</span>
-              </div>
+              <span>{{ game.pair2 }}</span>
             </td>
             <td>
               <span :class="['status-badge', game.status.toLowerCase()]">
