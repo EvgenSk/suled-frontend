@@ -32,7 +32,8 @@ describe('API Client', () => {
           status: 'Active',
           createdDate: '2025-05-01',
           blobFileName: 'tournament.xlsx',
-          pairs: []
+          pairs: [],
+          rounds: []
         }
       ]
 
