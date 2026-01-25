@@ -90,3 +90,34 @@ export interface ApiResponse<T> {
   data: T
   error?: string
 }
+
+// Local tracking types (no backend needed)
+export interface TrackedPair {
+  tournamentId: string
+  tournamentName: string
+  pairId: number
+  pairDisplayName: string
+  addedDate: string
+}
+
+export interface UpcomingGame {
+  tournamentId: string
+  tournamentName: string
+  pairId: number
+  pairDisplayName: string
+  round: number
+  courtNumber: number
+  opponentPairName: string
+  scheduledTime: Date
+  status: string
+}
+
+export interface NextGameInfo {
+  tournamentName: string
+  pairDisplayName: string
+  round: number
+  courtNumber: number
+  opponentPairName: string
+  scheduledTime: Date
+  minutesUntilStart: number
+}
