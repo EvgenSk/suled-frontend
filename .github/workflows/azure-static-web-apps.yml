@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Frontend CI/CD
 
 on:
   push:
@@ -17,6 +17,9 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+      url: ${{ vars.STATIC_WEB_APP_URL }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -35,7 +38,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy

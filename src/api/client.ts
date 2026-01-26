@@ -25,8 +25,8 @@ class ApiClient {
 
   // Tournament endpoints
   async getTournaments(): Promise<Tournament[]> {
-    const response = await this.client.get<Tournament[]>('/tournaments')
-    return response.data
+    const response = await this.client.get<{ data: Tournament[], success: boolean }>('/tournaments')
+    return response.data.data
   }
 
   async uploadTournament(file: File): Promise<{ message: string }> {
