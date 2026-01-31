@@ -28,8 +28,8 @@
         </div>
         <div class="game-timing">
           <div class="time">{{ formatGameTime(nextGame.scheduledTime) }}</div>
-          <div :class="['countdown-large', getCountdownClass(nextGame.minutesUntilGame)]">
-            {{ formatCountdown(nextGame.minutesUntilGame) }}
+          <div :class="['countdown-large', getCountdownClass(nextGame.minutesUntilStart)]">
+            {{ formatCountdown(nextGame.minutesUntilStart) }}
           </div>
         </div>
         <div class="round-info">Round {{ nextGame.round }}</div>
@@ -57,8 +57,8 @@
               <span class="time">{{ formatGameTime(game.scheduledTime) }}</span>
               <span class="round">Round {{ game.round }}</span>
             </div>
-            <div :class="['countdown', getCountdownClass(game.minutesUntilGame)]">
-              {{ formatCountdown(game.minutesUntilGame) }}
+            <div :class="['countdown', getCountdownClass(getMinutesUntil(game.scheduledTime))]">
+              {{ formatCountdown(getMinutesUntil(game.scheduledTime)) }}
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@ const handleUntrack = (tournamentId: string, pairId: number) => {
   }
 }
 
-const formatGameTime = (time: string) => {
+const formatGameTime = (time: Date) => {
   const date = new Date(time)
   return date.toLocaleString('en-US', {
     month: 'short',
@@ -127,6 +127,12 @@ const formatGameTime = (time: string) => {
     minute: '2-digit',
     hour12: false
   })
+}
+
+const getMinutesUntil = (scheduledTime: Date): number => {
+  const now = new Date()
+  const diff = scheduledTime.getTime() - now.getTime()
+  return Math.floor(diff / 60000)
 }
 
 const formatDate = (date: string) => {

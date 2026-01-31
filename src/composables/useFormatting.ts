@@ -68,7 +68,8 @@ export function useFormatting() {
   /**
    * Get status badge class
    */
-  const getStatusClass = (status: string) => {
+  const getStatusClass = (status: string | undefined) => {
+    if (!status) return 'upcoming'
     const normalizedStatus = status.toLowerCase()
     
     const statusMap: Record<string, string> = {
@@ -86,7 +87,8 @@ export function useFormatting() {
   /**
    * Format game status to display text
    */
-  const formatStatus = (status: string) => {
+  const formatStatus = (status: string | undefined) => {
+    if (!status) return 'Unknown'
     const statusMap: Record<string, string> = {
       'scheduled': 'Scheduled',
       'inprogress': 'In Progress',

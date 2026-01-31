@@ -65,12 +65,13 @@ export function usePairs(tournament: Ref<Tournament | null>) {
 /**
  * Helper to convert GameStatus enum to string
  */
-function getStatusString(status: number): string {
+function getStatusString(status: number | undefined): string {
+  if (status === undefined || status === null) return 'Unknown'
   const statusMap: Record<number, string> = {
     0: 'Scheduled',
     1: 'InProgress',
     2: 'Completed',
     3: 'Cancelled'
   }
-  return statusMap[status] || 'Scheduled'
+  return statusMap[status] || 'Unknown'
 }

@@ -177,7 +177,7 @@ export class LocalStorageService {
             courtNumber: game.courtNumber,
             opponentPairName: game.opponentPair.displayName,
             scheduledTime: gameTime,
-            status: game.status.toString()
+            status: game.status !== undefined && game.status !== null ? game.status.toString() : 'Unknown'
           })
         }
       }

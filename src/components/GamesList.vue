@@ -34,8 +34,8 @@
               <span>{{ game.pair2 }}</span>
             </td>
             <td>
-              <span :class="['status-badge', game.status.toLowerCase()]">
-                {{ game.status }}
+              <span :class="['status-badge', game.status?.toLowerCase() || 'unknown']">
+                {{ game.status || 'Unknown' }}
               </span>
             </td>
           </tr>
@@ -226,5 +226,10 @@ tr.our-game:hover {
 .status-badge.cancelled {
   background: #fed7d7;
   color: #742a2a;
+}
+
+.status-badge.unknown {
+  background: #e2e8f0;
+  color: #4a5568;
 }
 </style>

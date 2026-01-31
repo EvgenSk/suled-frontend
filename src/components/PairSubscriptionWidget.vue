@@ -27,8 +27,8 @@
           <div class="opponent">vs {{ game.opponentPairName }}</div>
           <div class="time">
             {{ formatGameTime(game.scheduledTime) }}
-            <span class="countdown" :class="getCountdownClass(game.minutesUntilGame)">
-              {{ formatCountdown(game.minutesUntilGame) }}
+            <span class="countdown" :class="getCountdownClass(getMinutesUntil(game.scheduledTime))">
+              {{ formatCountdown(getMinutesUntil(game.scheduledTime)) }}
             </span>
           </div>
         </div>
@@ -37,62 +37,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useSubscriptions } from '../composables/useSubscriptions'
-import type { NotificationPreferences } from '../types'
-
-interface Props {
-  tournamentId: string
-  pairId: number
-  pairDisplayName: string
-  deviceId: string
-  platform?: string
-  pushToken?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  platform: 'web',
-  pushToken: ''
-})
-
-const {
-  isSubscribed: checkSubscribed,
-  getSubscription,
-  upcomingGames,
-  loading,
-  subscribeToPair,
-  unsubscribeFromPair,
-  updatePreferences
-} = useSubscriptions(props.deviceId)
-
-const showPreferences = ref(false)
-const localPreferences = ref<NotificationPreferences>({
-  notifyBeforeMinutes: 15,
-  notifyOnTournamentStart: true,
-  notifyBeforeGame: true,
-  notifyOnCourtReady: true
-})
-
-const isSubscribed = computed(() => 
-  checkSubscribed(props.tournamentId, props.pairId)
-)
-
-const currentSubscription = computed(() => 
-  getSubscription(props.tournamentId, props.pairId)
-)
-
-const pairUpcomingGames = computed(() =>
-  upcomingGames.value.filter(
-    g => g.tournamentId === props.tournamentId && g.pairId === props.pairId
-  )
-)
-
-// Load preferences when subscription changes
-watch(currentSubscription, (subscription) => {
-  if (subscription) {
-    localPreferences.value = { ...subscription.preferences }
-  }
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useTrackedPairs } from '../composables/useTrackedPairs'
@@ -128,17 +72,80 @@ const toggleTracking = () => {
     props.pairDisplayName
   )
 }
-.subscribe-btn.subscribed {
+
+const formatGameTime = (scheduledTime?: Date) => {
+  if (!scheduledTime) return 'Time TBD'
+  const date = new Date(scheduledTime)
+  return date.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  })
+}
+
+const getMinutesUntil = (scheduledTime: Date): number => {
+  const now = new Date()
+  const diff = scheduledTime.getTime() - now.getTime()
+  return Math.floor(diff / 60000)
+}
+
+const formatCountdown = (minutes: number) => {
+  if (minutes < 0) return 'In progress'
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  return `${hours}h ${mins}m`
+}
+
+const getCountdownClass = (minutes: number) => {
+  if (minutes < 0) return 'past'
+  if (minutes < 15) return 'urgent'
+  if (minutes < 60) return 'soon'
+  return 'future'
+}
+</script>
+
+<style scoped>
+.tracking-widget {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.track-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #6c757d;
+  border-radius: 6px;
+  background: white;
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.track-btn:hover:not(:disabled) {
+  background: #6c757d;
+  color: white;
+}
+
+.track-btn.tracked {
   border-color: #28a745;
   color: #28a745;
 }
 
-.subscribe-btn.subscribed:hover:not(:disabled) {
+.track-btn.tracked:hover:not(:disabled) {
   background: #28a745;
   color: white;
 }
 
-.subscribe-btn:disabled {
+.track-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

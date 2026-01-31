@@ -56,7 +56,7 @@ export interface Tournament {
   location: string
   division: string
   description: string
-  status: string
+  status: string | undefined
   createdDate: string
   blobFileName: string
   pairs: TournamentPair[]
@@ -75,7 +75,7 @@ export interface Game {
   id: string
   round: number
   courtNumber: number
-  status: string
+  status: string | undefined
   scheduledTime: string | null
   pair1: string
   pair2: string

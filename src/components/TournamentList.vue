@@ -57,8 +57,8 @@
         </div>
 
         <div class="tournament-footer">
-          <span :class="['status-badge', tournament.status.toLowerCase()]">
-            {{ tournament.status }}
+          <span :class="['status-badge', tournament.status?.toLowerCase() || 'unknown']">
+            {{ tournament.status || 'Unknown' }}
           </span>
         </div>
       </div>
@@ -220,5 +220,10 @@ h2 {
 .status-badge.upcoming {
   background: #feebc8;
   color: #744210;
+}
+
+.status-badge.unknown {
+  background: #e2e8f0;
+  color: #4a5568;
 }
 </style>
