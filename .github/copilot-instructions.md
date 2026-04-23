@@ -20,7 +20,7 @@
 - **REQUIRED STEP**: Run type checking: `npm run type-check`
 - **DO NOT** present work as complete until ALL tests pass
 - Fix any failing tests before considering the refactoring complete
-- Ensure all 28+ tests pass before committing
+- Ensure all tests pass before committing
 - **WORKFLOW**: Code change → Run tests → Fix failures → Verify passing → THEN report complete
 
 ### Test Maintenance
